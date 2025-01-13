@@ -1,9 +1,12 @@
 package com.example.BasicServer.model;
 
 import org.hibernate.validator.constraints.UniqueElements;
-import org.springframework.data.annotation.Id;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
@@ -15,6 +18,7 @@ import jakarta.validation.constraints.Positive;
 public class Item {
 	
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@NotBlank
@@ -25,10 +29,12 @@ public class Item {
 	private int amount;
 	
 	@Email
-	@UniqueElements
+	@Column(unique = true)
 	private String email;
 
-	
+	public Item() {
+	    // Default constructor (for Hibernate)
+	}
 	public Item(@NotBlank String title,
 			@Positive @Max(value = 10000, message = "Amount cannot exceed 10000") int amount,
 			@Email String email) {
