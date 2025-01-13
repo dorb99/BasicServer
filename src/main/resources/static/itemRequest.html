@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Request</title>
+	<link rel="stylesheet" href="/styles.css">
+
+</head>
+<body>
+    <h1>Item Management</h1>
+
+    <label for="method">Select HTTP Method:</label>
+    <select id="method" onchange="toggleInputs()">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+    </select>
+
+    <div id="id-input" style="margin-top: 10px;">
+        <label for="itemId">Item ID (for GET, PUT, DELETE):</label>
+        <input type="text" id="itemId" placeholder="Enter item ID">
+    </div>
+
+    <div id="item-details" style="display: none; margin-top: 10px;">
+        <h3>Item Details (for POST/PUT)</h3>
+        <label for="title">Title:</label>
+        <input type="text" id="title" placeholder="Enter item title" required><br>
+        <label for="amount">Amount (max 10000):</label>
+        <input type="number" id="amount" placeholder="Enter item amount" required><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="Enter unique email" required><br>
+    </div>
+
+    <button onclick="sendRequest()" style="margin-top: 10px;">Send Request</button>
+
+    <div id="response" style="margin-top: 20px;">
+        <h3>Response:</h3>
+        <pre id="responseOutput"></pre>
+    </div>
+
+    <script>
+		const urlPrefix = "http://localhost:8080/api/v1"
+        function toggleInputs() {
+            const method = document.getElementById('method').value;
+            const itemDetails = document.getElementById('item-details');
+            const idInput = document.getElementById('id-input');
+
+            if (method === 'POST' || method === 'PUT') {
+                itemDetails.style.display = 'block';
+            } else {
+                itemDetails.style.display = 'none';
+            }
+
+            if (method === 'GET' || method === 'DELETE' || method === 'PUT') {
+                idInput.style.display = 'block';
+            } else {
+                idInput.style.display = 'none';
+            }
+        }
+
+        async function sendRequest() {
+            const method = document.getElementById('method').value;
+            const id = document.getElementById('itemId').value;
+            const title = document.getElementById('title').value;
+            const amount = document.getElementById('amount').value;
+            const email = document.getElementById('email').value;
+            const responseOutput = document.getElementById('responseOutput');
+
+            let url = urlPrefix+'/items';
+            let body = {};
+            let options = { method, headers: { 'Content-Type': 'application/json' } };
+
+            if (id) url += `/${id}`;
+
+            if (method === 'POST' || method === 'PUT') {
+                body = JSON.stringify({ title, amount, email });
+                options.body = body;
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                responseOutput.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseOutput.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
